@@ -54,23 +54,33 @@ async function refreshOfflineBtn(label) {
   offlineBtn.textContent = label || ((await packReady()) ? '✓ offline' : '↓ offline');
   offlineBtn.classList.toggle('ready', offlineBtn.textContent.startsWith('✓'));
 }
+async function savePack(onStep) {
+  const c = await caches.open('snaptext-cdn-v1'); // same cache the worker uses
+  for (let i = 0; i < OFFLINE_PACK.length; i++) {
+    if (!(await c.match(OFFLINE_PACK[i]))) {
+      const r = await fetch(OFFLINE_PACK[i]);
+      if (!r.ok) throw new Error('net');
+      await c.put(OFFLINE_PACK[i], r.clone());
+    }
+    onStep?.(i + 1);
+  }
+}
 offlineBtn.onclick = async () => {
   if (offlineBtn.textContent.startsWith('✓') || offlineBtn.textContent.startsWith('saving')) return;
   try {
-    const c = await caches.open('snaptext-cdn-v1'); // same cache the worker uses
-    for (let i = 0; i < OFFLINE_PACK.length; i++) {
-      offlineBtn.textContent = `saving… ${i + 1}/${OFFLINE_PACK.length}`;
-      if (!(await c.match(OFFLINE_PACK[i]))) {
-        const r = await fetch(OFFLINE_PACK[i]);
-        if (!r.ok) throw new Error('net');
-        await c.put(OFFLINE_PACK[i], r.clone());
-      }
-    }
+    await savePack((n) => { offlineBtn.textContent = `saving… ${n}/${OFFLINE_PACK.length}`; });
     await refreshOfflineBtn();
     say('saved — works offline now ✓');
   } catch { say('need internet once to save'); await refreshOfflineBtn(); }
 };
-refreshOfflineBtn();
+// Save once, automatically, on first visit — the chip is only a fallback/retry.
+refreshOfflineBtn().then(async () => {
+  if (offlineBtn.textContent.startsWith('✓') || !navigator.onLine || navigator.connection?.saveData) return;
+  try {
+    await savePack((n) => { offlineBtn.textContent = `saving… ${n}/${OFFLINE_PACK.length}`; });
+    await refreshOfflineBtn();
+  } catch { await refreshOfflineBtn(); } // stay on manual chip
+});
 
 /* ---------- views ---------- */
 function showWork() {
