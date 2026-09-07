@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>SnapText</title>
+<meta name="description" content="Snap a screenshot, tap the words, copy." />
+<meta name="theme-color" content="#0a0a0c" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="SnapText" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" type="image/svg+xml" href="icon.svg" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<link rel="stylesheet" href="styles.css" />
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
+</head>
+<body>
+  <header class="bar">
+    <div class="brand"><span class="mark"></span><span>snaptext</span></div>
+    <div class="bar-right">
+      <button id="installBtn" class="iconbtn hidden" aria-label="Install app"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v10"/><path d="M7.5 10.5 12 15l4.5-4.5"/><path d="M5 19.5h14"/></svg></button>
+      <button id="resetBtn" class="iconbtn hidden" aria-label="New image"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg></button>
+    </div>
+  </header>
+
+  <main class="phone">
+    <!-- ── Start ── -->
+    <section id="uploadView" class="start">
+      <button id="dropzone" class="pick" aria-label="Add screenshot">
+        <span class="pick-icon">◐</span>
+        <span class="pick-title">Add a screenshot</span>
+        <span class="pick-sub">tap · paste</span>
+      </button>
+      <input id="fileInput" type="file" accept="image/*" hidden />
+      <div class="start-row">
+        <button id="pasteBtn" class="chip">⧉ paste</button>
+        <button id="offlineBtn" class="chip dim">↓ offline</button>
+      </div>
+      <p class="tiny">on-device · nothing uploads</p>
+    </section>
+
+    <!-- ── Work ── -->
+    <section id="workView" class="hidden">
+      <div class="tools">
+        <div class="seg">
+          <button id="modeClick" class="seg-btn active" aria-label="Tap words">◎</button>
+          <button id="modeBox" class="seg-btn" aria-label="Drag box">▭</button>
+        </div>
+        <button id="eyeBtn" class="iconbtn on" aria-label="Toggle boxes">◌</button>
+        <span class="flex"></span>
+        <button id="selectAllBtn" class="toolbtn">all</button>
+        <button id="clearBtn" class="toolbtn">clear</button>
+        <button id="changeBtn" class="toolbtn">↺</button>
+      </div>
+
+      <div id="progressWrap" class="pload hidden"><div id="progressBar"></div></div>
+
+      <div id="stage" class="stage">
+        <img id="previewImg" alt="" draggable="false" />
+        <div id="overlay" class="overlay show"></div>
+        <div id="dragRect" class="drag-rect hidden"></div>
+        <div id="hint" class="hint">tap words</div>
+      </div>
+
+      <div class="sheet">
+        <div class="grab"></div>
+        <div class="sheet-top">
+          <span id="selCount" class="count">0</span>
+          <span id="sheetLabel" class="sheet-label">nothing selected</span>
+          <span class="flex"></span>
+          <button id="copyAllBtn" class="toolbtn">all text →</button>
+        </div>
+        <pre id="selectedText" class="out hidden"></pre>
+        <pre id="fullText" class="out dim hidden"></pre>
+        <div id="phoneRow" class="phones hidden"></div>
+        <button id="copyBtn" class="cta" disabled>Copy</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden">copied ✓</div>
+
+<script src="app.js"></script>
+</body>
+</html>
