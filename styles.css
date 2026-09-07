@@ -98,6 +98,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);-web
 /* desktop: keep the phone feel, just breathe */
 @media(min-width:640px){
   .phone{padding-top:26px}
-  .stage img{max-height:62vh;object-fit:contain;background:#000}
+  /* NOTE: never constrain the image box (max-height/object-fit) — the word
+     overlay is positioned in % of the element box, so any letterboxing
+     would shift every box off its word. */
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
