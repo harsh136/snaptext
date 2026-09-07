@@ -209,19 +209,41 @@ function setProgress(p) { progressBar.style.width = `${Math.round(p * 100)}%`; }
 
 // Shrink images whose longest side exceeds 2000px. Same aspect ratio,
 // so boxes still line up — but far fewer pixels for the engine to chew.
+// Dark screenshots (chat apps, dark mode) are Otsu-binarized: flat UI
+// colors threshold cleanly, while colored bubbles otherwise defeat the
+// engine's own thresholding and text gets dropped or misboxed.
 async function prepImage(file) {
   ocrW = imgW; ocrH = imgH;
   try {
     const bmp = await createImageBitmap(file);
     const s = Math.min(1, 2000 / Math.max(bmp.width, bmp.height));
-    if (s === 1) { bmp.close(); return file; }
     ocrW = Math.round(bmp.width * s); ocrH = Math.round(bmp.height * s);
     const c = document.createElement('canvas');
     c.width = ocrW; c.height = ocrH;
-    c.getContext('2d').drawImage(bmp, 0, 0, ocrW, ocrH);
+    const g = c.getContext('2d', { willReadFrequently: true });
+    g.drawImage(bmp, 0, 0, ocrW, ocrH);
     bmp.close();
+    binarizeIfDark(g, ocrW, ocrH);
     return await new Promise((r) => c.toBlob(r, 'image/png')) || file;
   } catch { return file; }
+}
+
+// Binarize dark screenshots (chat apps, dark mode) at a fixed threshold.
+// Dark UI palettes are constrained (backgrounds/bubbles < ~70, text > ~130),
+// while adaptive methods get fooled by the huge background peak and erase
+// the text. Light images are left untouched.
+function binarizeIfDark(g, w, h) {
+  const id = g.getImageData(0, 0, w, h), d = id.data;
+  let sum = 0, n = 0;
+  for (let i = 0; i < d.length; i += 16) {
+    sum += 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]; n++;
+  }
+  if (sum / n >= 128) return; // light image: leave alone
+  for (let i = 0; i < d.length; i += 4) {
+    const v = (0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]) > 100 ? 255 : 0;
+    d[i] = d[i + 1] = d[i + 2] = v;
+  }
+  g.putImageData(id, 0, 0);
 }
 
 function renderWords() {
