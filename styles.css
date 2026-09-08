@@ -128,6 +128,11 @@ body{
   box-shadow:0 8px 28px rgba(255,255,255,.14);transition:transform .15s}
 .cta:disabled{opacity:.28;box-shadow:none}
 .cta:not(:disabled):active{transform:scale(.98)}
+.cta-row{display:flex;gap:10px}
+.cta-row .cta{flex:1}
+.cta-row .cta.primary{flex:1.6}
+.cta.secondary{background:var(--card);color:var(--ink);border:1px solid var(--line);box-shadow:none;
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
 
 /* whatsapp numbers */
 .phones{display:flex;flex-direction:column;gap:8px;margin:0 0 12px}

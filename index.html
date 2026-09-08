@@ -77,10 +77,13 @@
           <span class="flex"></span>
           <button id="copyAllBtn" class="toolbtn">all text →</button>
         </div>
-        <pre id="selectedText" class="out hidden" contenteditable="true" spellcheck="false" enterkeyhint="done" aria-label="Selected text — tap to fix any mistakes"></pre>
+        <pre id="selectedText" class="out hidden" contenteditable="false" spellcheck="false" enterkeyhint="done" aria-label="Selected text"></pre>
         <pre id="fullText" class="out dim hidden"></pre>
         <div id="phoneRow" class="phones hidden"></div>
-        <button id="copyBtn" class="cta" disabled>Copy</button>
+        <div class="cta-row">
+          <button id="editBtn" class="cta secondary" disabled>Edit</button>
+          <button id="copyBtn" class="cta primary" disabled>Copy</button>
+        </div>
       </div>
     </section>
   </main>

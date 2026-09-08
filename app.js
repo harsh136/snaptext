@@ -7,6 +7,29 @@ const progressWrap = $('progressWrap'), progressBar = $('progressBar');
 const selectedText = $('selectedText'), fullText = $('fullText');
 const selCount = $('selCount'), sheetLabel = $('sheetLabel'), hint = $('hint');
 const copyBtn = $('copyBtn'), copyAllBtn = $('copyAllBtn'), toast = $('toast');
+const editBtn = $('editBtn');
+let editing = false;
+function exitEditMode() {
+  editing = false;
+  selectedText.contentEditable = 'false';
+  editBtn.textContent = 'Edit';
+  if (document.activeElement === selectedText) selectedText.blur();
+}
+editBtn.onclick = () => {
+  if (editBtn.disabled) return;
+  editing = !editing;
+  selectedText.contentEditable = String(editing);
+  editBtn.textContent = editing ? 'Done' : 'Edit';
+  if (editing) {
+    selectedText.focus();
+    const r = document.createRange();
+    r.selectNodeContents(selectedText);
+    r.collapse(false);
+    const s = getSelection();
+    s.removeAllRanges(); s.addRange(r);
+  } else selectedText.blur();
+  buzz(8);
+};
 const phoneRow = $('phoneRow');
 
 let words = [];
@@ -119,6 +142,7 @@ copyAllBtn.onclick = () => {
   showingAll = !showingAll;
   fullText.classList.toggle('hidden', !showingAll);
   if (showingAll && !selectedText.classList.contains('hidden')) selectedText.classList.add('hidden');
+  exitEditMode();
   updateSelection();
   renderPhones(findPhones(showingAll ? fullText.textContent : selectedText.textContent));
   copyAllBtn.textContent = showingAll ? '← back' : 'all text →';
@@ -362,9 +386,11 @@ function updateSelection() {
   const has = n > 0;
   selectedText.classList.toggle('hidden', !has || showingAll);
   if (changed) {
+    exitEditMode();
     selectedText.textContent = text;
     renderPhones(findPhones(showingAll ? fullText.textContent : text));
   }
+  editBtn.disabled = !has || showingAll;
   sheetLabel.textContent = !words.length ? 'reading…' : has ? `${text.split('\n').length} line${text.includes('\n') ? 's' : ''}` : 'tap words on image';
   hint.textContent = !words.length ? 'reading…' : has ? `${n} selected` : 'tap words · drag for more';
 }
