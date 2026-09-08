@@ -380,20 +380,33 @@ function findPhones(text) {
   }
   return out;
 }
+function waButton(p) {
+  const b = document.createElement('button');
+  b.className = 'wa';
+  const dot = document.createElement('span'); dot.className = 'wa-dot';
+  const num = document.createElement('span'); num.className = 'wa-num'; num.textContent = p.display;
+  const go = document.createElement('span'); go.className = 'wa-go'; go.textContent = 'WhatsApp ›';
+  b.append(dot, num, go);
+  b.onclick = () => window.open('https://wa.me/' + p.wa, '_blank', 'noopener');
+  return b;
+}
 function renderPhones(list) {
   phoneRow.innerHTML = '';
   phoneRow.classList.toggle('hidden', !list.length);
-  list.slice(0, 3).forEach(p => {
-    const b = document.createElement('button');
-    b.className = 'wa';
-    const dot = document.createElement('span'); dot.className = 'wa-dot';
-    const num = document.createElement('span'); num.className = 'wa-num'; num.textContent = p.display;
-    const go = document.createElement('span'); go.className = 'wa-go'; go.textContent = 'WhatsApp ›';
-    b.append(dot, num, go);
-    b.onclick = () => window.open('https://wa.me/' + p.wa, '_blank', 'noopener');
-    phoneRow.appendChild(b);
-  });
+  list.slice(0, 3).forEach(p => phoneRow.appendChild(waButton(p)));
 }
+
+/* ---------- manual number → chat (no screenshot needed) ---------- */
+const numInput = $('numInput'), numRow = $('numRow');
+numInput.addEventListener('input', () => {
+  const list = findPhones(numInput.value).slice(0, 3);
+  numRow.innerHTML = '';
+  numRow.classList.toggle('hidden', !list.length);
+  list.forEach(p => numRow.appendChild(waButton(p)));
+});
+numInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') numRow.querySelector('.wa')?.click();
+});
 
 /* ---------- copy ---------- */
 async function copyText(t) {
