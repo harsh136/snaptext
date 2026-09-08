@@ -58,7 +58,9 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);-web
 
 /* stage */
 .stage{position:relative;border-radius:var(--r);overflow:hidden;background:#000;border:1px solid var(--line);
-  user-select:none;-webkit-user-select:none;touch-action:none;min-height:240px}
+  user-select:none;-webkit-user-select:none;touch-action:none}
+  /* NOTE: no min-height here — it would leave a dead band under short/wide
+     images. The stage height always equals the image height. */
 .stage img{display:block;width:100%;height:auto;pointer-events:none}
 .overlay{position:absolute;inset:0}
 .word{position:absolute;border-radius:5px;min-width:8px;min-height:10px}
