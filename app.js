@@ -12,6 +12,7 @@ const phoneRow = $('phoneRow');
 let words = [];
 let imgW = 0, imgH = 0;   // display size (original)
 let ocrW = 0, ocrH = 0;   // size actually scanned (downscaled)
+let selSig = '';          // selected-word signature; guards manual edits
 let mode = 'click';
 let showBoxes = true;
 let showingAll = false;
@@ -119,8 +120,13 @@ copyAllBtn.onclick = () => {
   fullText.classList.toggle('hidden', !showingAll);
   if (showingAll && !selectedText.classList.contains('hidden')) selectedText.classList.add('hidden');
   updateSelection();
+  renderPhones(findPhones(showingAll ? fullText.textContent : selectedText.textContent));
   copyAllBtn.textContent = showingAll ? '← back' : 'all text →';
 };
+// Fixing a misread digit by hand refreshes the WhatsApp row live.
+selectedText.addEventListener('input', () => {
+  renderPhones(findPhones(selectedText.textContent));
+});
 
 /* ---------- intake ---------- */
 fileInput.onchange = (e) => { if (e.target.files[0]) loadFile(e.target.files[0]); fileInput.value = ''; };
@@ -343,6 +349,11 @@ function selectedInOrder() {
 function updateSelection() {
   const n = words.filter(w => w.selected).length;
   const text = selectedInOrder();
+  // Regenerate the box only when the selection itself changed — otherwise
+  // every tap would wipe the user's manual fixes.
+  const sig = words.map((w, i) => w.selected ? i : -1).filter(i => i >= 0).join(',');
+  const changed = sig !== selSig;
+  selSig = sig;
   selCount.textContent = n;
   const allText = fullText.textContent.trim();
   const canCopyAll = showingAll && allText && allText !== '—';
@@ -350,11 +361,15 @@ function updateSelection() {
   copyBtn.textContent = canCopyAll ? 'Copy all' : (n ? `Copy ${n} word${n > 1 ? 's' : ''}` : 'Copy');
   const has = n > 0;
   selectedText.classList.toggle('hidden', !has || showingAll);
-  selectedText.textContent = text;
+  if (changed) {
+    selectedText.textContent = text;
+    renderPhones(findPhones(showingAll ? fullText.textContent : text));
+  }
   sheetLabel.textContent = !words.length ? 'reading…' : has ? `${text.split('\n').length} line${text.includes('\n') ? 's' : ''}` : 'tap words on image';
   hint.textContent = !words.length ? 'reading…' : has ? `${n} selected` : 'tap words · drag for more';
-  renderPhones(findPhones(showingAll ? fullText.textContent : text));
 }
+
+/* ---------- copy ---------- */
 
 /* ---------- phone numbers → WhatsApp ---------- */
 // Finds Indian mobiles (bare 10-digit, 0/91/+91 prefixed, spaced/dashed)
@@ -434,4 +449,4 @@ function say(msg) {
 function saySilent(msg) { hint.textContent = msg; }
 function buzz(ms) { try { navigator.vibrate?.(ms); } catch {} }
 
-window.__snaptext = { get words() { return words; }, selectedInOrder, findPhones };
+window.__snaptext = { get words() { return words; }, selectedInOrder, findPhones, updateSelection };

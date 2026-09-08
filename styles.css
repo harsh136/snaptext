@@ -121,6 +121,8 @@ body{
 .out{white-space:pre-wrap;word-break:break-word;background:#0b0b0f;border:1px solid var(--line);border-radius:var(--r-md);
   padding:14px;font:400 14px/1.65 var(--font);color:var(--ink);max-height:26vh;overflow:auto;margin:0 0 12px}
 .out.dim{color:var(--muted);font-size:13px;max-height:18vh}
+.out[contenteditable="true"]{cursor:text;caret-color:#fff}
+.out[contenteditable="true"]:focus{outline:none;border-color:rgba(255,255,255,.32)}
 .cta{width:100%;border:0;border-radius:var(--r-pill);background:var(--accent);color:var(--accent-ink);
   font:700 16px var(--font);letter-spacing:-.01em;padding:17px;cursor:pointer;min-height:56px;
   box-shadow:0 8px 28px rgba(255,255,255,.14);transition:transform .15s}
